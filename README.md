@@ -1,39 +1,20 @@
-# Document Chat Application
+# Monc Notebook
 
-A full-stack application that allows users to upload PDF documents and chat with an AI assistant about their content. Each user gets a unique session with isolated file storage and chat history.
+This full-stack app lets anyone upload a PDF, CSV, or paste a web link and instantly chat with an AI that understands that content. Each user gets a private session with isolated file storage and persisted chat history, so conversations stay organized, searchable, and secure. It’s your personal research assistant for reports, spreadsheets, and webpages—ask questions, extract insights, summarize sections, and cite sources, all in one place.
+
+
+# LIVE DEMO [notebook.monc.space](https://notebook.monc.space/)
+https://notebook.monc.space
 
 ## Features
 
 -   **User Session Management**: Each user gets a unique UUID stored in localStorage
--   **Multi-Format Support**: Upload PDF, CSV, TXT files with real-time progress tracking
--   **YouTube Integration**: Extract and analyze YouTube video transcripts
+-   **Multi-Format Support**: Upload PDF, CSV files with real-time progress tracking
 -   **Web Page Analysis**: Process and analyze content from web pages with smart content extraction
--   **Large File Support**: Handles large files with intelligent chunking and batch processing
--   **Content Chunking**: Automatically splits large content to prevent token overflow
--   **Document Processing**: All content is processed and indexed using vector embeddings
 -   **AI Chat**: Chat with GPT about your uploaded documents with context awareness
--   **Markdown Rendering**: AI responses are beautifully formatted with markdown support
 -   **Chat History**: Conversation history is maintained per user session
 -   **Session Management**: Create new sessions, clear chat, delete sessions
 -   **Isolated Sessions**: Different users have completely separate file and chat contexts
--   **Responsive UI**: Fixed-height containers with proper scrolling
--   **Error Handling**: Comprehensive error handling with user-friendly messages
-
-## Architecture
-
-### Backend (Node.js + Express)
-
--   **Session Management**: UUID-based user sessions with in-memory storage
--   **File Processing**: PDF parsing and vector embedding using LangChain
--   **Vector Storage**: Qdrant for document embeddings with user-specific collections
--   **AI Integration**: OpenAI GPT for contextual responses
-
-### Frontend (React + TypeScript)
-
--   **Session Persistence**: UUID stored in localStorage for user identification
--   **Real-time Chat**: Interactive chat interface with typing indicators
--   **File Management**: Document upload with progress tracking
--   **History Management**: Chat history persisted in localStorage
 
 ## Setup Instructions
 

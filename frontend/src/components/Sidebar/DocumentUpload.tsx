@@ -151,7 +151,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                         )}
                     </p>
                     <p className="upload-subtitle">
-                        Supports PDF, CSV, TXT, MD files (Max 10MB each)
+                        Supports PDF, CSV files (Max 10MB each)
                     </p>
                 </div>
 
