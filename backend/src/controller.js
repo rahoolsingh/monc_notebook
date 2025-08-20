@@ -273,54 +273,91 @@ export const queryChat = async (req, res) => {
             k: 3,
         });
 
-        const relevantChunk = await vectorSearcher.invoke(userMessage);
+        // Use AI to improve the search query based on userMessage
+        let improvedQuery = "";
+        try {
+            const response = await client.chat.completions.create({
+                model: "gpt-4.1-nano",
+                messages: [
+                    {
+                        role: "system",
+                        content: `
+                        You are an AI assistant that transforms a user's question into an optimized search query 
+                        for retrieving the **most relevant context** from a vector database.
+
+                        ### Guidelines:
+                        1. Understand the user's intent and extract the **core meaning** of their query.
+                        2. Remove any filler words, irrelevant details, or conversational phrases.
+                        3. Keep the query **concise**, **specific**, and **semantic-friendly** for better vector search.
+                        4. Use **keywords** and important **entities** mentioned in the user message.
+                        5. If the question is vague, rephrase it to make it more **searchable**.
+                        6. Do **not** answer the question — only return the **improved query**.
+                `,
+                    },
+                    {
+                        role: "user",
+                        content: userMessage,
+                    },
+                ],
+            });
+
+            improvedQuery = response.choices[0].message.content.trim();
+        } catch (error) {
+            console.error(
+                "Error occurred while fetching improved query:",
+                error
+            );
+            improvedQuery = userMessage;
+        }
+
+        const relevantChunk = await vectorSearcher.invoke(improvedQuery);
 
         const SYSTEM_PROMPT = `
-You are an intelligent AI assistant designed to answer user queries strictly based on the provided context. 
-The context contains extracted content from documents.
+            You are an intelligent AI assistant designed to answer user queries strictly based on the provided context. 
+            The context contains extracted content from documents.
 
-### Instructions:
-1. Use ONLY the information available in the provided context.
-2. If the exact answer is NOT available, look for **similar or related topics** in the context and provide the closest possible relevant information.
-3. Do NOT invent, assume, or hallucinate details beyond what is provided.
-4. If nothing even remotely related exists in the context, respond with:  
-   "The provided context does not contain sufficient information to answer this question."
-5. If a related concept is mentioned in the context, **explain it in detail** to help the user.
-6. Whenever possible, include **examples**, **quotes**, and **references** from the context to support your answer.
-7. Consider the **conversation history** to provide contextual and coherent responses.
-8. Format your response using **Markdown** for better readability.
+            ### Instructions:
+            1. Use ONLY the information available in the provided context.
+            2. If the exact answer is NOT available, look for **similar or related topics** in the context and provide the closest possible relevant information.
+            3. Do NOT invent, assume, or hallucinate details beyond what is provided.
+            4. If nothing even remotely related exists in the context, respond with:  
+            "The provided context does not contain sufficient information to answer this question."
+            5. If a related concept is mentioned in the context, **explain it in detail** to help the user.
+            6. Whenever possible, include **examples**, **quotes**, and **references** from the context to support your answer.
+            7. Consider the **conversation history** to provide contextual and coherent responses.
+            8. Format your response using **Markdown** for better readability.
 
-### Response Formatting Guidelines:
-- Use **bold** for important terms and concepts.
-- Use *italics* for emphasis.
-- Use bullet points (-) or numbered lists (1.) for multiple items.
-- Use \`code\` formatting for technical terms, file names, or specific values.
-- Use > blockquotes for direct quotes from the context.
-- Use ### headings to organize sections of your response.
-- Use tables when presenting structured data.
+            ### Response Formatting Guidelines:
+            - Use **bold** for important terms and concepts.
+            - Use *italics* for emphasis.
+            - Use bullet points (-) or numbered lists (1.) for multiple items.
+            - Use \`code\` formatting for technical terms, file names, or specific values.
+            - Use > blockquotes for direct quotes from the context.
+            - Use ### headings to organize sections of your response.
+            - Use tables when presenting structured data.
 
-### Response Structure:
-Use this markdown structure for your responses:
+            ### Response Structure:
+            Use this markdown structure for your responses:
 
-## Summary
-Brief overview of the answer.
+            ## Summary
+            Brief overview of the answer.
 
-## Key Points
-- **Point 1**: Detailed explanation.
-- **Point 2**: Additional information.
-- **Point 3**: Supporting details.
+            ## Key Points
+            - **Point 1**: Detailed explanation.
+            - **Point 2**: Additional information.
+            - **Point 3**: Supporting details.
 
-## Related Information *(if exact answer not found)*
-Provide insights on related concepts from the context.
+            ## Related Information *(if exact answer not found)*
+            Provide insights on related concepts from the context.
 
-## Details
-Comprehensive explanation with examples, quotes, and references.
+            ## Details
+            Comprehensive explanation with examples, quotes, and references.
 
-## Sources
-List relevant page numbers or references from the context.
+            ## Sources
+            List relevant page numbers or references from the context.
 
-### Context:
-${JSON.stringify(relevantChunk)}
+            ### Context:
+            ${JSON.stringify(relevantChunk)}
 `;
 
         // Limit chat history to prevent token overflow
