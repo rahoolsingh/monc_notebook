@@ -90,7 +90,6 @@ body {
   backdrop-filter: var(--backdrop-blur);
   -webkit-backdrop-filter: var(--backdrop-blur);
   border-bottom: 1px solid var(--color-border);
-  position: sticky;
   top: 0;
   z-index: 100;
   transition: all var(--transition-base);
@@ -190,7 +189,6 @@ body {
 .main-content {
   flex: 1;
   display: flex;
-  min-height: calc(100vh - var(--header-height));
 }
 
 /* Sidebar */
@@ -1084,7 +1082,6 @@ Session Manager Styles */
 .session-actions {
   margin-top: var(--space-3);
   display: flex;
-  flex-direction: column;
   gap: var(--space-2);
 }
 
@@ -1310,13 +1307,13 @@ Session Manager Styles */
 /* Better responsive behavior */
 @media (max-width: 768px) {
   .session-actions {
-    flex-direction: row;
     flex-wrap: wrap;
   }
 
-  .session-action {
-    flex: 1;
-    min-width: 120px;
+
+
+  .session-action-label {
+    display: none;
   }
 
   .documents-container {
@@ -1537,7 +1534,9 @@ Session Manager Styles */
   font-size: var(--text-xs);
   color: var(--color-textSecondary);
   margin: 0;
-}/* Markdow
+}
+
+/* Markdow
 n Message Styles */
 .markdown-content {
   line-height: 1.6;
@@ -1711,15 +1710,15 @@ n Message Styles */
   .markdown-table {
     font-size: var(--text-sm);
   }
-  
+
   .markdown-pre {
     padding: var(--space-3);
   }
-  
+
   .markdown-h1 {
     font-size: var(--text-lg);
   }
-  
+
   .markdown-h2 {
     font-size: var(--text-base);
   }
@@ -1739,13 +1738,15 @@ n Message Styles */
 }
 
 /* Better spacing for nested elements */
-.markdown-content > *:first-child {
+.markdown-content>*:first-child {
   margin-top: 0;
 }
 
-.markdown-content > *:last-child {
+.markdown-content>*:last-child {
   margin-bottom: 0;
-}/* C
+}
+
+/* C
 ode highlighting styles (GitHub theme) */
 .hljs {
   display: block;

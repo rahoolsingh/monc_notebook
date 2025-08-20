@@ -188,9 +188,6 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                         {isUploading ? "Processing..." : "Add URL"}
                     </button>
                 </form>
-                <p className="url-help">
-                    Supports YouTube videos and web pages
-                </p>
             </div>
 
             <div className="documents-list">
