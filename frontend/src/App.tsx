@@ -115,6 +115,8 @@ function App() {
     return (
         <ThemeProvider>
             <div className="app">
+                <Header />
+
                 <main className="main-content">
                     <Sidebar
                         documents={documents}
@@ -126,7 +128,6 @@ function App() {
                     />
 
                     <div className="chat-section">
-                        <Header />
                         {sessionData && (
                             <SessionManager
                                 userId={sessionData.userId}
