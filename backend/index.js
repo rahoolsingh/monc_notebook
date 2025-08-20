@@ -16,7 +16,8 @@ async function chat() {
     const vectorStore = await QdrantVectorStore.fromExistingCollection(
         embeddings,
         {
-            url: "http://localhost:6333",
+            url: process.env.QDRANT_URL,
+            api_key: process.env.QDRANT_API_KEY,
             collectionName: "chaicode-collection",
         }
     );

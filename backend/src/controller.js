@@ -157,7 +157,8 @@ export const uploadFiles = async (req, res) => {
             );
 
             await QdrantVectorStore.fromDocuments(batch, embeddings, {
-                url: "http://localhost:6333",
+                url: process.env.QDRANT_URL,
+                api_key: process.env.QDRANT_API_KEY,
                 collectionName,
             });
         }
@@ -614,7 +615,8 @@ export const uploadUrl = async (req, res) => {
                 );
 
                 await QdrantVectorStore.fromDocuments(batch, embeddings, {
-                    url: process.env.QDRANT_URL || "http://localhost:6333",
+                    url: process.env.QDRANT_URL,
+                    api_key: process.env.QDRANT_API_KEY,
                     collectionName,
                 });
             }
