@@ -5,11 +5,21 @@ import { Document } from '../../types';
 
 interface SidebarProps {
   documents: Document[];
+  isUploading: boolean;
   onDocumentUpload: (files: FileList) => void;
   onUrlAdd: (url: string) => void;
+  onDocumentRemove: (docId: string) => void;
+  onClearDocuments: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ documents, onDocumentUpload, onUrlAdd }) => {
+const Sidebar: React.FC<SidebarProps> = ({ 
+  documents, 
+  isUploading,
+  onDocumentUpload, 
+  onUrlAdd,
+  onDocumentRemove,
+  onClearDocuments
+}) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
@@ -30,8 +40,11 @@ const Sidebar: React.FC<SidebarProps> = ({ documents, onDocumentUpload, onUrlAdd
         {!isCollapsed && (
           <DocumentUpload
             documents={documents}
+            isUploading={isUploading}
             onDocumentUpload={onDocumentUpload}
             onUrlAdd={onUrlAdd}
+            onDocumentRemove={onDocumentRemove}
+            onClearDocuments={onClearDocuments}
           />
         )}
       </div>

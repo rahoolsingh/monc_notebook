@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, User, Bot, Loader2 } from 'lucide-react';
 import { ChatMessage } from '../../types';
+import MarkdownMessage from './MarkdownMessage';
 
 interface ChatInterfaceProps {
   messages: ChatMessage[];
@@ -55,18 +56,26 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  const formatTime = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
+  const formatTime = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date;
+      if (isNaN(dateObj.getTime())) {
+        return 'Invalid time';
+      }
+      return new Intl.DateTimeFormat('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }).format(dateObj);
+    } catch (error) {
+      return 'Invalid time';
+    }
   };
 
   return (
     <div className="chat-interface">
       <div className="chat-header">
         <h2 className="chat-title">AI Assistant</h2>
-        <p className="chat-subtitle">Ask questions about your documents</p>
+        <p className="chat-subtitle">Ask questions about your documents • Responses formatted with Markdown</p>
       </div>
 
       <div className="messages-container">
@@ -86,7 +95,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
               
               <div className="message-content">
                 <div className="message-bubble">
-                  <p className="message-text">{message.content}</p>
+                  <MarkdownMessage 
+                    content={message.content} 
+                    isUser={message.sender === 'user'} 
+                  />
                 </div>
                 <div className="message-meta">
                   <span className="message-time">{formatTime(message.timestamp)}</span>

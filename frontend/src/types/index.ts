@@ -1,7 +1,7 @@
 export interface Document {
   id: string;
   name: string;
-  type: 'pdf' | 'docx' | 'txt' | 'md' | 'url';
+  type: 'pdf' | 'docx' | 'txt' | 'md' | 'csv' | 'youtube' | 'webpage' | 'url';
   size: number;
   content?: string;
   uploadProgress?: number;
@@ -9,6 +9,7 @@ export interface Document {
   uploadedAt: Date;
   summary?: string;
   keyInsights?: string[];
+  sourceUrl?: string;
 }
 
 export interface ChatMessage {

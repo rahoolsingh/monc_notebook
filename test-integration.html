@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .result { margin-top: 10px; padding: 10px; background: #f5f5f5; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        .progress-container { 
+            margin: 10px 0; 
+            position: relative; 
+            width: 100%; 
+            height: 20px; 
+            background: #f0f0f0; 
+            border-radius: 10px; 
+            overflow: hidden;
+        }
+        .progress-bar-test { 
+            height: 100%; 
+            background: linear-gradient(90deg, #4CAF50, #45a049); 
+            transition: width 0.3s ease;
+        }
+        #progressText { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            font-weight: bold; 
+            color: #333; 
+            z-index: 1;
+        }
+        .url-examples { 
+            margin: 10px 0; 
+            padding: 10px; 
+            background: #f9f9f9; 
+            border-radius: 5px; 
+        }
+        .url-examples button,
+        .chat-examples button { 
+            margin: 2px; 
+            padding: 5px 10px; 
+            font-size: 12px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 3px; 
+        }
+        .chat-examples { 
+            margin: 10px 0; 
+            padding: 10px; 
+            background: #f0f8ff; 
+            border-radius: 5px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Document Chat API Integration Test</h1>
+    
+    <div class="test-section">
+        <h3>1. Generate User ID</h3>
+        <button onclick="generateUserId()">Generate UUID</button>
+        <div id="userId-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test Session Endpoint</h3>
+        <button onclick="testSession()">Test GET /api/session/:userId</button>
+        <div id="session-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test File Upload</h3>
+        <input type="file" id="fileInput" accept=".pdf,.csv,.txt">
+        <button onclick="testUpload()">Upload File</button>
+        <div id="upload-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Test URL Upload</h3>
+        <input type="url" id="urlInput" placeholder="Enter YouTube or webpage URL" style="width: 400px;">
+        <button onclick="testUrlUpload()">Upload URL</button>
+        <div class="url-examples">
+            <p><strong>Test URLs:</strong></p>
+            <button onclick="document.getElementById('urlInput').value='https://en.wikipedia.org/wiki/Artificial_intelligence'">Wikipedia AI</button>
+            <button onclick="document.getElementById('urlInput').value='https://www.youtube.com/watch?v=dQw4w9WgXcQ'">YouTube Test</button>
+        </div>
+        <div id="url-upload-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Test Chat</h3>
+        <input type="text" id="chatInput" placeholder="Enter your message" style="width: 300px;">
+        <button onclick="testChat()">Send Message</button>
+        <button onclick="clearChat()">Clear Chat History</button>
+        <div class="chat-examples">
+            <p><strong>Try these questions:</strong></p>
+            <button onclick="document.getElementById('chatInput').value='What are the main topics covered in the document?'">Main Topics</button>
+            <button onclick="document.getElementById('chatInput').value='Can you summarize the key points?'">Summarize</button>
+            <button onclick="document.getElementById('chatInput').value='What examples are provided?'">Examples</button>
+        </div>
+        <div id="chat-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. File Upload Progress Test</h3>
+        <input type="file" id="progressFileInput" accept=".pdf">
+        <button onclick="testUploadProgress()">Test Upload with Progress</button>
+        <div class="progress-container">
+            <div class="progress-bar-test" id="progressBar" style="width: 0%; height: 20px; background: #4CAF50; transition: width 0.3s;"></div>
+            <span id="progressText">0%</span>
+        </div>
+        <div id="progress-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>6. Admin Functions</h3>
+        <button onclick="getAllUsers()">Get All Users</button>
+        <button onclick="deleteCurrentUser()">Delete Current User</button>
+        <div id="admin-result" class="result"></div>
+    </div>
+
+    <script>
+        let currentUserId = null;
+        const API_BASE = 'http://localhost:3000/api';
+
+        function generateUserId() {
+            currentUserId = crypto.randomUUID();
+            localStorage.setItem('userId', currentUserId);
+            document.getElementById('userId-result').innerHTML = 
+                `<div class="success">Generated UUID: ${currentUserId}</div>`;
+        }
+
+        async function testSession() {
+            if (!currentUserId) {
+                document.getElementById('session-result').innerHTML = 
+                    '<div class="error">Please generate a User ID first</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/session/${currentUserId}`);
+                const data = await response.json();
+                
+                document.getElementById('session-result').innerHTML = 
+                    `<div class="success">Session Response: ${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('session-result').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testUpload() {
+            if (!currentUserId) {
+                document.getElementById('upload-result').innerHTML = 
+                    '<div class="error">Please generate a User ID first</div>';
+                return;
+            }
+
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                document.getElementById('upload-result').innerHTML = 
+                    '<div class="error">Please select a PDF file</div>';
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('userId', currentUserId);
+
+                const response = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('upload-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">Upload Response: ${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('upload-result').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testChat() {
+            if (!currentUserId) {
+                document.getElementById('chat-result').innerHTML = 
+                    '<div class="error">Please generate a User ID first</div>';
+                return;
+            }
+
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            
+            if (!message) {
+                document.getElementById('chat-result').innerHTML = 
+                    '<div class="error">Please enter a message</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        userId: currentUserId,
+                        chatHistory: []
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('chat-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">Chat Response: ${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('chat-result').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function clearChat() {
+            if (!currentUserId) {
+                document.getElementById('chat-result').innerHTML = 
+                    '<div class="error">Please generate a User ID first</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/session/${currentUserId}/chat`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('chat-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">Clear Chat Response: ${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('chat-result').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function getAllUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/users`);
+                const data = await response.json();
+                
+                document.getElementById('admin-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">All Users: ${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('admin-result').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testUrlUpload() {
+            if (!currentUserId) {
+                document.getElementById('url-upload-result').innerHTML = 
+                    '<div class="error">Please generate a User ID first</div>';
+                return;
+            }
+
+            const urlInput = document.getElementById('urlInput');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                document.getElementById('url-upload-result').innerHTML = 
+                    '<div class="error">Please enter a URL</div>';
+                return;
+            }
+
+            try {
+                document.getElementById('url-upload-result').innerHTML = 
+                    '<div class="success">Processing URL... This may take a moment.</div>';
+
+                const response = await fetch(`${API_BASE}/upload-url`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: currentUserId,
+                        url: url
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('url-upload-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">URL Upload Response: ${JSON.stringify(data, null, 2)}</div>`;
+            } catch (error) {
+                document.getElementById('url-upload-result').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function testUploadProgress() {
+            if (!currentUserId) {
+                document.getElementById('progress-result').innerHTML = 
+                    '<div class="error">Please generate a User ID first</div>';
+                return;
+            }
+
+            const fileInput = document.getElementById('progressFileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                document.getElementById('progress-result').innerHTML = 
+                    '<div class="error">Please select a PDF file</div>';
+                return;
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('userId', currentUserId);
+
+                const xhr = new XMLHttpRequest();
+                
+                // Track upload progress
+                xhr.upload.addEventListener('progress', (event) => {
+                    if (event.lengthComputable) {
+                        const progress = Math.round((event.loaded / event.total) * 100);
+                        document.getElementById('progressBar').style.width = progress + '%';
+                        document.getElementById('progressText').textContent = progress + '%';
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        document.getElementById('progress-result').innerHTML = 
+                            `<div class="${data.success ? 'success' : 'error'}">Upload with Progress: ${JSON.stringify(data, null, 2)}</div>`;
+                    } catch (error) {
+                        document.getElementById('progress-result').innerHTML = 
+                            `<div class="error">Error parsing response: ${error.message}</div>`;
+                    }
+                });
+
+                xhr.addEventListener('error', () => {
+                    document.getElementById('progress-result').innerHTML = 
+                        '<div class="error">Upload failed</div>';
+                });
+
+                xhr.open('POST', `${API_BASE}/upload`);
+                xhr.send(formData);
+                
+            } catch (error) {
+                document.getElementById('progress-result').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function deleteCurrentUser() {
+            if (!currentUserId) {
+                document.getElementById('admin-result').innerHTML = 
+                    '<div class="error">Please generate a User ID first</div>';
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this user session?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/session/${currentUserId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('admin-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">Delete User Response: ${JSON.stringify(data, null, 2)}</div>`;
+                
+                if (data.success) {
+                    // Generate new user ID after deletion
+                    generateUserId();
+                }
+            } catch (error) {
+                document.getElementById('admin-result').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Auto-generate UUID on page load
+        window.onload = function() {
+            const savedUserId = localStorage.getItem('userId');
+            if (savedUserId) {
+                currentUserId = savedUserId;
+                document.getElementById('userId-result').innerHTML = 
+                    `<div class="success">Loaded existing UUID: ${currentUserId}</div>`;
+            } else {
+                generateUserId();
+            }
+        };
+    </script>
+</body>
+</html>
