@@ -1,5 +1,6 @@
 import multer from "multer";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
 
 const validMimeTypes = [
     "application/pdf",
@@ -18,7 +19,7 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
         try {
             const ext = path.extname(file.originalname) || "";
-            cb(null, `${Date.now()}-${file.fieldname}${ext}`);
+            cb(null, `${uuidv4()}${ext}`);
         } catch (err) {
             cb(err);
         }
@@ -44,7 +45,9 @@ const upload = multer({ storage, fileFilter });
 export const validFileUploads = (req, res, next) => {
     upload.single("file")(req, res, (err) => {
         if (err) {
-            return res.status(400).json({ error: err.message || "File upload error" });
+            return res
+                .status(400)
+                .json({ error: err.message || "File upload error" });
         }
         next();
     });
