@@ -11,7 +11,7 @@ const Header: React.FC = () => {
                 <div className="header-left">
                     <div className="logo">
                         <FileText className="logo-icon" />
-                        <span className="logo-text">DocumentAI</span>
+                        <span className="logo-text">Monc Notebook</span>
                     </div>
                 </div>
 

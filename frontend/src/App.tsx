@@ -8,6 +8,7 @@ import { useChat } from "./hooks/useChat";
 import { useSession } from "./hooks/useSession";
 import "./styles/main.css";
 import Header from "./components/Layout/Header";
+import { API_BASE_URL } from "./services/api";
 
 function App() {
     const {
@@ -59,7 +60,7 @@ function App() {
         ) {
             try {
                 const response = await fetch(
-                    `http://localhost:3000/api/session/${sessionData.userId}`,
+                    `${API_BASE_URL}/session/${sessionData.userId}`,
                     {
                         method: "DELETE",
                     }
